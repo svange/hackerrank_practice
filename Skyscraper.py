@@ -1,5 +1,5 @@
 import functools
-from math import factorial
+import unittest
 
 
 def solve(arr):
@@ -9,33 +9,31 @@ def solve(arr):
     tallest = max(arr)
     num_tallest = arr.count(tallest)
 
-    if num_tallest <= 1:
-        tallest_paths = 0
-    else:
-        tallest_paths = factorial(num_tallest) / factorial(num_tallest - 2)
+    tallest_paths = num_tallest * (num_tallest - 1)
 
     splits = [i for i, x in enumerate(arr) if x == tallest]
 
-    arrs = []
+    sub_problems = []
     current = 0
     for split in splits:
-        arrs.append(arr[current:split])
+        sub_problems.append(arr[current:split])
         current = split + 1
+    if current == len(arr) + 1:
+        sub_problems.append(arr[current::])
 
-    sub_problem_answers = map(solve, arrs)
+    sub_problem_answers = map(solve, sub_problems)
     sum_sub_problem_answers = functools.reduce(lambda x, y: x + y, sub_problem_answers)
 
     return int(tallest_paths + sum_sub_problem_answers)
 
 
+class TestSolution(unittest.TestCase):
+    def test_solve(self):
+        self.assertEqual(solve([1, 2, 3]), 0)
+        self.assertEqual(solve([3, 2, 1]), 0)
+        self.assertEqual(solve([1, 1, 1, 2, 2]), 8)
+        self.assertEqual(solve([3, 2, 1, 1, 2, 3, 2, 1, 1, 2, 3]), 14)
+
 
 if __name__ == '__main__':
-    arr_1 = [1, 1, 1, 2, 2]  # 8
-    arr_2 = [3, 2, 1]  # 0
-    arr_3 = [1, 2, 3] # 0
-    arr_4 = [3, 2, 1, 1, 2, 3, 2, 1, 1, 2, 3]  # 14
-
-    arrs = [arr_1, arr_2, arr_3, arr_4]
-
-    for arr in arrs:
-        print(solve(arr))
+    unittest.main()

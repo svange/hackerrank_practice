@@ -1,7 +1,11 @@
 import functools
 import unittest
+from collections import defaultdict
 
 
+# This is a cool recursive solution, but has a running time of n * k
+# for n = the size of the buildings array
+# and k = the number of different building heights.
 def solve(arr):
     if len(arr) <= 1:
         return 0
@@ -26,61 +30,54 @@ def solve(arr):
 
     return int(tallest_paths + sum_sub_problem_answers)
 
+
+# This solution uses a stack and a hash table to reduce the running time to 2n
+# for n = the size of the building array
 def solve_stack(arr):
     if len(arr) <= 1:
         return 0
     stack = []
 
     num_paths = 0
-    first_seen = {}
 
     for next_building in arr:
+        # Special case where nothing is on the stack
         if len(stack) == 0:
             stack.append(next_building)
-            first_seen[next_building] = len(stack) - 1
             continue
 
+        # If the next building is taller than the last building, pop things off the stack until the building
+        # at the top of the stack is taller than the next building
+        # While doing this, use a hash table to count how many occurences of any building height seen
+        # for a building k seen n times, add n * (n - 1) to the total number of paths
         if next_building > stack[-1]:
-
-            #############################################################################
-
+            # Default dictionary where each value is initialized to 0
+            seen = defaultdict(lambda: 0)
             while next_building > stack[-1]:
-                stack = stack[:first_seen[stack[-1]]]
-                for key in first_seen.keys():
-                    if key < next_building:
-                        first_seen[key] = None
-                    if len(stack) == 0:
-                        break
-
-            #############################################################################
-
-            # while next_building > stack[-1]:
-            #     stack.pop()
-            #     if len(stack) == 0:
-            #         break
-
-            #############################################################################
-
-            if len(stack) > 0 and next_building == stack[-1]:
-                num_paths += stack.count(next_building) * 2
-            if not first_seen.get(next_building):
-                first_seen[next_building] = len(stack) - 1
+                seen[stack.pop()] += 1
+                if len(stack) == 0:
+                    break
+            for building in seen.keys():
+                if seen[building] > 1:
+                    num_paths += seen[building] * (seen[building] - 1)
             stack.append(next_building)
-        elif next_building < stack[-1]:
-            if not first_seen.get(next_building):
-                first_seen[next_building] = len(stack) - 1
+        # If the next building is smaller than or equal in height to the next building, push it onto the stack.
+        else:
             stack.append(next_building)
-        elif next_building == stack[-1]:
-            num_paths += stack.count(next_building) * 2
-            if not first_seen.get(next_building):
-                first_seen[next_building] = len(stack) - 1
-            stack.append(next_building)
+
+    # Clean up any remaining stack
+    if stack:
+        seen = defaultdict(lambda: 0)
+        while stack:
+            seen[stack.pop()] += 1
+        for building in seen.keys():
+            if seen[building] > 1:
+                num_paths += seen[building] * (seen[building] - 1)
     return num_paths
 
 
-
 class TestSolution(unittest.TestCase):
-    def test_solve(self):
+    def skip_test_solve(self):
         self.assertEqual(solve([1, 2, 3]), 0)
         self.assertEqual(solve([3, 2, 1]), 0)
         self.assertEqual(solve([1, 1, 1, 2, 2]), 8)

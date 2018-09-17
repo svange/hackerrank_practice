@@ -62,20 +62,22 @@ class Board:
             return False
 
     def do_two_spies_break_the_rules(self):
-        for spy_1, spy_2 in combinations(self.spies, 2):
-            if spy_1 == spy_2:
+        newest_spy = self.spies[-1]
+        for existing_spy in self.spies[:-1]:
+            if existing_spy == newest_spy:
                 continue
-            if self.are_spies_on_diagonal(spy_1, spy_2):
+            if self.are_spies_on_diagonal(existing_spy, newest_spy):
                 return True
-            if self.are_spies_on_horizontal(spy_1, spy_2):
+            if self.are_spies_on_horizontal(existing_spy, newest_spy):
                 return True
-            if self.are_spies_on_diagonal(spy_1, spy_2):
+            if self.are_spies_on_diagonal(existing_spy, newest_spy):
                 return True
             return False
 
     def do_three_spies_break_the_rules(self):
-        for spy_1, spy_2, spy_3 in combinations(self.spies, 3):
-            if self.are_spies_on_line(spy_1, spy_2, spy_3):
+        newest_spy = self.spies[-1]
+        for spy_1, spy_2 in combinations(self.spies[:-1], 2):
+            if self.are_spies_on_line(spy_1, spy_2, newest_spy):
                 return True
             else:
                 return False
@@ -88,7 +90,6 @@ class Board:
 
     @staticmethod
     def generate_solution(n: int):
-
         board = Board(n)
         squares = board.squares()
 
@@ -117,6 +118,6 @@ class TestBoard(unittest.TestCase):
 if __name__ == '__main__':
     for n in range(1, 11):
         solution = Board.generate_solution(n)
-        print(str(n))
-        print(str(solution))
+        print('Board size: %i x %i' % (n, n))
+        print(str(solution) + '\n')
 

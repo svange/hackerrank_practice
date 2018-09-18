@@ -35,7 +35,8 @@ class MyMatrix:
             top_right = coord(current_row)
             # down
             for row in range(len(self.rotated_matrix))[current_row:len(self.rotated_matrix) - current_row]:
-                if row >
+                pass
+                # if row >
             # right
 
             # up
